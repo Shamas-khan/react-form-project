@@ -1,6 +1,8 @@
 import React from 'react'
 
 export const Expensetable = ({expenses}) => {
+
+ 
   return (
     <>
          <table className="expense-table">
