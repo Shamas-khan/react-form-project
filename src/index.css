@@ -74,7 +74,8 @@ main {
 .input-container {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    position:relative;
 }
 
 .input-container label {
@@ -126,4 +127,11 @@ main {
     .expense-tracker {
         flex-direction: column;
     }
+}
+.error{
+    font-size:12px;
+    color:red;
+    margin:0;
+    position:absolute;
+    top:100%
 }
