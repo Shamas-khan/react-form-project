@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Input from "./Input";
+import SelectMenu from "./SelectMenu";
 
 export const Expenseform = ({ setexpenses }) => {
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formvalue, setformvalue] = useState({
     title: "",
     category: "",
@@ -9,24 +12,53 @@ export const Expenseform = ({ setexpenses }) => {
 
   const [error, setError] = useState({});
 
+  const validationConfig = {
+    title: [
+      { required: true, message: "Please enter title" },
+      { minLength: 3, message: "Title should be at least 3 characters long" },
+    ],
+    category: [{ required: true, message: "Please select category" }],
+    amount: [{ required: true, message: "Please enter amount" },
+    { isnumber: true, message: "amount must be in numeric values" }],
+  };
+  
   const validate = (formdata) => {
     const errorData = {};
-    if (!formdata.title) {
-      errorData.title = "title is required";
-    }
-    if (!formdata.category) {
-      errorData.category = "category is required";
-    }
-    if (!formdata.amount) {
-      errorData.amount = "amount is required";
-    }
-  
+ 
+
+    Object.entries(formdata).forEach(([key, value]) => {
+      validationConfig[key].some((rule) => {
+        if (rule.required && !value) {
+          errorData[key] = rule.message;
+          return true
+        }
+        
+        if (rule.minLength && value.length < rule.minLength) {
+          errorData[key] = rule.message;
+          return true
+        }
+        if (rule.isnumber && (!value || isNaN(parseFloat(value)) || !isFinite(value))) {
+          errorData[key] = rule.message;
+          return true
+        }
+      });
+    });
+
     setError(errorData);
+    return errorData;
   };
+
+  useEffect(() => {
+    if (isSubmitted) {
+      validate(formvalue);
+    }
+  }, [formvalue, isSubmitted]);
+
   const handlesubmit = (e) => {
     e.preventDefault();
-    const validateResult = validate(formvalue); // Corrected from validate(expense)
-    if (Object.keys(validateResult).length) return;
+    setIsSubmitted(true);
+    const validateResult = validate(formvalue);
+    if (Object.keys(validateResult).length !== 0) return;
 
     setexpenses((prevstate) => [
       ...prevstate,
@@ -38,6 +70,7 @@ export const Expenseform = ({ setexpenses }) => {
       category: "",
       amount: "",
     });
+    setIsSubmitted(false);
   };
 
   const handleChange = (e) => {
@@ -46,48 +79,37 @@ export const Expenseform = ({ setexpenses }) => {
     setError((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
 
+
   return (
     <>
       <form className="expense-form" onSubmit={handlesubmit}>
-        <div className="input-container">
-          <label htmlFor="title">Title</label>
-          <input
-            id="title"
-            name="title"
-            value={formvalue.title}
-            onChange={handleChange}
-          />
-          <p className="error">{error.title}</p>
-        </div>
-        <div className="input-container">
-          <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            name="category"
-            value={formvalue.category}
-            onChange={handleChange}
-          >
-            <option value="" hidden>
-              Select Category
-            </option>
-            <option value="grocery">Grocery</option>
-            <option value="clothes">Clothes</option>
-            <option value="bills">Bills</option>
-            <option value="education">Education</option>
-            <option value="medicine">Medicine</option>
-          </select>
-          <p className="error">{error.category}</p>
-        </div>
-        <div className="input-container">
-          <label htmlFor="amount">Amount</label>
-          <input
-            id="amount"
-            name="amount"
-            value={formvalue.amount}
-            onChange={handleChange}
-          />
-          <p className="error">{error.amount}</p>
-        </div>
+        <Input
+          name="title"
+          label={"Title"}
+          value={formvalue.title}
+          onchange={handleChange}
+          error={error.title}
+        />
+
+        <SelectMenu
+          name="category"
+          id={"category"}
+          label={"Category"}
+          value={formvalue.category}
+          onchange={handleChange}
+          error={error.category}
+          byDefault={"Select Category"}
+          options={["Grocery", "Clothes", "Bills", "Education", "Medicine"]}
+        />
+
+        <Input
+          name="amount"
+          id={"amount"}
+          label={"Amount"}
+          value={formvalue.amount}
+          onchange={handleChange}
+          error={error.amount}
+        />
         <button className="add-btn">Add</button>
       </form>
     </>
