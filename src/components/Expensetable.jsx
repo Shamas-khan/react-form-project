@@ -1,20 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFilter } from "./hooks/useFilter";
+import Contextmenu from "./Contextmenu";
+import Decimal from "decimal.js"; 
 
-export const Expensetable = ({ expenses }) => {
+export const Expensetable = ({ expenses, setexpenses,setformvalue,setEditingRowId }) => {
+  const [filteredData, setQuery] = useFilter(expenses, (data) => data.category);
+  const total = filteredData.reduce(
+    (prevValue, curr) => new Decimal(prevValue).plus(curr.amount),
+    new Decimal(0)
+  ).toString();
+  const [position, setposition] = useState({});
+  const [rowid, setrowid] = useState('');
 
-  const [filteredData,setQuery]=useFilter(expenses,(data)=> data.category)
-  const total = filteredData.reduce((prevValue,curr)=>prevValue+curr.amount,0)
+  const handleContextMenu = (e, id) => {
+    e.preventDefault();
+    setposition({ left: e.clientX, top: e.clientY });
+    setrowid(id);
+  };
+
+  const handleClick = () => {
+    setposition({});
+    
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [position]);
+
   return (
     <>
+      <Contextmenu
+        position={position}
+        setposition={setposition}
+        setexpenses={setexpenses}
+        rowid={rowid}
+        setformvalue={setformvalue}
+        expenses={expenses}
+        setEditingRowId={setEditingRowId}
+      />
       <table className="expense-table">
         <thead>
           <tr>
             <th>Title</th>
             <th>
-              <select
-                onChange={(e) => setQuery(e.target.value.toLowerCase())}
-              >
+              <select onChange={(e) => setQuery(e.target.value.toLowerCase())}>
                 <option value="">All</option>
                 <option value="grocery">Grocery</option>
                 <option value="clothes">Clothes</option>
@@ -50,7 +83,7 @@ export const Expensetable = ({ expenses }) => {
         </thead>
         <tbody>
           {filteredData.map((expense) => (
-            <tr key={expense.id}>
+            <tr key={expense.id} onContextMenu={(e) => handleContextMenu(e, expense.id)}>
               <td>{expense.title}</td>
               <td>{expense.category}</td>
               <td>{expense.amount}</td>

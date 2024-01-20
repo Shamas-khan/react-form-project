@@ -2,13 +2,9 @@ import React, { useEffect, useState } from "react";
 import Input from "./Input";
 import SelectMenu from "./SelectMenu";
 
-export const Expenseform = ({ setexpenses }) => {
+export const Expenseform = ({ setexpenses,setformvalue,formvalue,editingRowId }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [formvalue, setformvalue] = useState({
-    title: "",
-    category: "",
-    amount: "",
-  });
+ 
 
   const [error, setError] = useState({});
 
@@ -110,7 +106,7 @@ export const Expenseform = ({ setexpenses }) => {
           onchange={handleChange}
           error={error.amount}
         />
-        <button className="add-btn">Add</button>
+        <button className="add-btn">{editingRowId? "Save":"Add"}</button>
       </form>
     </>
   );
