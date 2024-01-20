@@ -22,6 +22,7 @@ function App() {
             formvalue={formvalue}
             setformvalue={setformvalue}
             editingRowId={editingRowId}
+            setEditingRowId={setEditingRowId}
           />
           <Expensetable
             expenses={expenses}

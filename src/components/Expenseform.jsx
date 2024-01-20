@@ -2,9 +2,14 @@ import React, { useEffect, useState } from "react";
 import Input from "./Input";
 import SelectMenu from "./SelectMenu";
 
-export const Expenseform = ({ setexpenses,setformvalue,formvalue,editingRowId }) => {
+export const Expenseform = ({
+  setEditingRowId,
+  setexpenses,
+  setformvalue,
+  formvalue,
+  editingRowId,
+}) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
- 
 
   const [error, setError] = useState({});
 
@@ -14,28 +19,32 @@ export const Expenseform = ({ setexpenses,setformvalue,formvalue,editingRowId })
       { minLength: 3, message: "Title should be at least 3 characters long" },
     ],
     category: [{ required: true, message: "Please select category" }],
-    amount: [{ required: true, message: "Please enter amount" },
-    { isnumber: true, message: "amount must be in numeric values" }],
+    amount: [
+      { required: true, message: "Please enter amount" },
+      { isnumber: true, message: "amount must be in numeric values" },
+    ],
   };
-  
+
   const validate = (formdata) => {
     const errorData = {};
- 
 
     Object.entries(formdata).forEach(([key, value]) => {
       validationConfig[key].some((rule) => {
         if (rule.required && !value) {
           errorData[key] = rule.message;
-          return true
+          return true;
         }
-        
+
         if (rule.minLength && value.length < rule.minLength) {
           errorData[key] = rule.message;
-          return true
+          return true;
         }
-        if (rule.isnumber && (!value || isNaN(parseFloat(value)) || !isFinite(value))) {
+        if (
+          rule.isnumber &&
+          (!value || isNaN(parseFloat(value)) || !isFinite(value))
+        ) {
           errorData[key] = rule.message;
-          return true
+          return true;
         }
       });
     });
@@ -56,10 +65,25 @@ export const Expenseform = ({ setexpenses,setformvalue,formvalue,editingRowId })
     const validateResult = validate(formvalue);
     if (Object.keys(validateResult).length !== 0) return;
 
-    setexpenses((prevstate) => [
-      ...prevstate,
-      { ...formvalue, id: self.crypto.randomUUID() },
-    ]);
+    if (editingRowId) {
+      setexpenses((prevState) =>
+        prevState.map((singleExpense) => {
+          if (singleExpense.id === editingRowId) {
+            return { ...formvalue, id: editingRowId };
+          }
+          return singleExpense;
+        })
+        )
+       setEditingRowId('')
+       
+    }
+    else{
+      setexpenses((prevstate) => [
+        ...prevstate,
+        { ...formvalue, id: self.crypto.randomUUID() },
+      ]);
+    }
+   
 
     setformvalue({
       title: "",
@@ -74,7 +98,6 @@ export const Expenseform = ({ setexpenses,setformvalue,formvalue,editingRowId })
     setformvalue((prevstate) => ({ ...prevstate, [name]: value }));
     setError((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
-
 
   return (
     <>
@@ -106,7 +129,7 @@ export const Expenseform = ({ setexpenses,setformvalue,formvalue,editingRowId })
           onchange={handleChange}
           error={error.amount}
         />
-        <button className="add-btn">{editingRowId? "Save":"Add"}</button>
+        <button className="add-btn">{editingRowId ? "Save" : "Add"}</button>
       </form>
     </>
   );
