@@ -39,7 +39,10 @@ main {
 .amount-column div {
     display: flex;
 }
-
+.clear-sort{
+   cursor:pointer 
+   
+}
 .amount-column span {
     margin-right: 6px;
 }
