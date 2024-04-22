@@ -118,7 +118,7 @@ export const Expenseform = ({
           onchange={handleChange}
           error={error.category}
           byDefault={"Select Category"}
-          options={["Grocery", "Clothes", "Bills", "Education", "Medicine"]}
+          options={["Grocery", "Clothes", "Bills", "Education", "Medicine","other"]}
         />
 
         <Input
